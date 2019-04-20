@@ -6,3 +6,8 @@ This project is only for my personal studying purposes, but if you find this cod
 For the beginnig, I'l follow this papers:
 1. https://habr.com/ru/post/312450/
 2. https://habr.com/ru/post/313216/
+
+
+PS
+Also, have to point out, that I use Visual studio SE 17.
+If one sees this code years after upload, keep that in mind))
