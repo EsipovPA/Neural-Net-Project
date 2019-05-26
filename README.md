@@ -8,6 +8,10 @@ For the beginnig, I'l follow this papers:
 2. https://habr.com/ru/post/313216/
 
 
+For now, this net can simulate simple logical functions.
+
+For detaled description, see my paper on LInkedIn
+
 PS
 
 
