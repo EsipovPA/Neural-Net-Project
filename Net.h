@@ -206,76 +206,6 @@ void Net::BackPropagation(vector<double> *errors)
 
 }
 
-// Old back prop ver
-/*
-void Net::BackPropagation(vector<double> *errors) {
-	if (errors->size() != neurons.back().size()) {
-		cout << "Sizes of the output layer and errors vector are different\n";
-		cout << "To do back prop, please input correct size array\n";
-		cout << "Output later size = " << neurons.size() << "\n";
-		return;
-	}
-	else {
-		cout << "Calculating delta for output layer here\n";
-
-		for (int i = 0; i < errors->size(); i++) {
-			neurons.back()[i]->AddToDeltaSum(errors->at(i));
-			neurons.back()[i]->CalculateDelta();
-		}
-
-		cout << "End of output layer delta calculation\n";
-
-		cout << "\nCalculate delta for hidden layers\n";
-		int nLayer = neurons.size() - 2;
-
-
-		// Не работает из за того, что не получается обратиться к нейрону на другом конце соединения
-		// через нейрон на входящем конце соединения
-		// Попробовать проход по слоям соединений реализовать вместо существующего подхода.
-		// Возможно можно обратиться к исходящму нейрону. Проверить варианты на эту тему.
-
-		// Algo of the back prop
-
-		for (int i = connections.size() - 1; i >= 0; i--) {
-			// Propagate delta back through connections in the connection layer
-			for (int j = 0; j < connections[i].size(); j++) {
-				connections[i][j].PropagateBack();
-			}
-
-			// Calculate delta for every neuron in layer
-			for (int j = 0; j < neurons[nLayer].size(); j++) {
-				cout << "\n Delta calc Neuron[" << nLayer << "][" << j << "]\n";
-				neurons[nLayer][j]->DebugDelta();
-				neurons[nLayer][j]->CalculateDelta();
-				neurons[nLayer][j]->DebugDelta();
-
-				// Calculate gradient and update outcoming connections weights
-				for (int con = 0; con < neurons[nLayer][j]->m_outConnections.size(); con++) {
-					cout << "first = " << neurons[nLayer][j]->GetOutVal() << "\n";
-					cout << "secnd = " << neurons[nLayer][j]->m_outConnections[con]->GetDelta() << "\n";
-					double gradient = neurons[nLayer][j]->GetOutVal() * neurons[nLayer][j]->m_outConnections[con]->GetDelta();
-					cout << "gradient = " << gradient << "\n";
-
-					neurons[nLayer][j]->m_outConnections[con]->UpdateWeight(gradient);
-				}
-
-				cout << "\n";
-			}
-
-			// Check if layer calculation has gone wrong
-			nLayer -= 1;
-			if (nLayer < 0) {
-				cout << "wrong neuron layer number\n";
-				return;
-			}
-
-		}
-
-		cout << "End of delta calculation\n";
-	}
-}
-*/
-
 vector<double> *Net::GetOutVals() {
 	vector<double> *outVals = new vector<double>();
 
@@ -304,8 +234,6 @@ void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned lon
 		ErrorCalculator = RootMSE;
 	else if (errCalc == ATAN_METHOD)
 		ErrorCalculator = Arctan;
-	
-	//double(*ErrorCalculator)(vector<double> result, vector<double> target) = MSE;
 
 	if (inVals->size() != neurons[0].size() || targetVals->size() != neurons.back().size()) {
 		cout << "target vals size or input vals size incorrect\n";
