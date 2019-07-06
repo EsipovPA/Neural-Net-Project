@@ -17,17 +17,7 @@ struct NetStructure {
 
 	double studySpeed = 1.0;
 	double gradientMoment = 0.0;
-
-	void GetWeightsFromFile(string fName = "NNS_State.txt");
 };
-
-
-// Not developed yet
-void NetStructure::GetWeightsFromFile(string fName) {
-
-
-
-}
 
 //*********** Net Class ***********
 class Net {
