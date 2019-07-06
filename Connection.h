@@ -17,7 +17,7 @@ public:
 
 	void FeedForward();
 	void PropagateBack();
-	void UpdateWeight(double gradient) {
+	virtual void UpdateWeight(double gradient) {
 
 		if (m_studySpeedPtr == NULL) {
 			cout << "Can't solve\n";
@@ -31,17 +31,13 @@ public:
 
 	double GetWeightTimesDelta() { return (m_weight * m_to->GetDelta()); }
 	double GetDelta();
-	//double GetDelta() { return m_currentDelta; }
 
 	// Pointers to the network study parameters
 	double *m_studySpeedPtr;
 	double *m_studyMomentPtr;
 
-	double m_lastDelta;
-	double m_currentDelta;
-
-	//debugging val
-	bool doneBackProp = false;
+	double m_lastDelta = 0;
+	double m_currentDelta = 0;
 
 //private:
 	Neuron *m_from;

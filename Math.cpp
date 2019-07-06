@@ -22,6 +22,14 @@ double BiasNeuronActivationFunc(double inVal) {
 	return 1.0;
 }
 
+double ThresholdActivationFunction(double inVal) {
+	return (inVal >= 0) ? 1.0 : 0.0;
+}
+
+double SensorActivationFunction(double inVal) {
+	return (inVal >= 0.5) ? 1 : 0;
+}
+
 double LinearFincDeriv(double inVal) {
 	return inVal;
 }

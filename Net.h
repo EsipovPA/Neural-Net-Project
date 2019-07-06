@@ -1,27 +1,33 @@
 #include "Neuron.h"
 #include "Connection.h"
 #include "LogFile.h"
+#include "ImageFileReader.h"
 
 #include <string>
 
 //*********** Net structure ***********
-// Structure used in Net constructor
-// Defines Neural net structure within one container
 struct NetStructure {
-	NetStructure() {
-		addBias = false;
-		activationFunction = LINEAR_FUNCTION;
-	};
+	NetStructure() {};
 
-	bool addBias;
-	int activationFunction;
+	bool addBias = false;
+	int activationFunction = LINEAR_FUNCTION;
 
 	vector<unsigned> neurons;
 	vector<vector<double>> conWeights;
 
 	double studySpeed = 1.0;
 	double gradientMoment = 0.0;
+
+	void GetWeightsFromFile(string fName = "NNS_State.txt");
 };
+
+
+// Not developed yet
+void NetStructure::GetWeightsFromFile(string fName) {
+
+
+
+}
 
 //*********** Net Class ***********
 class Net {
@@ -29,37 +35,36 @@ public:
 	Net(NetStructure *netStr);
 
 	bool TakeInput(vector<double> *inVals);
+	bool TakeInputFile(string *fName);
 	void PushForward();
-	void BackPropagation(vector<double> *errors);
 	vector<double> *GetOutVals();
 	void ClearNeurons();
-	void UpdateStudySpeed(double newVal) {
-		m_studySpeed = newVal;
-	}
-	void UpdateStudyMoment(double newVal) {
-		m_studyMoment = newVal;
-	}
 
+	void Train(vector<vector<double>*> *inVects, vector<vector<double>*> *targetVals, unsigned long iterations, int errCalc = MIN_SQ_METHOD);
 
-	double m_studySpeed = 0.5;
-	double m_studyMoment = 0.0;
-
-	void Study(vector<double> *inVals, vector<double> *targetVals, unsigned long iterations, int errCalc = 10);
+	void SaveStateToFile(string fName = "NNS_State.txt");
 
 private:
 	// values
 	vector<NeuronLayer> neurons;
 	vector<ConnectionLayer> connections;
 	int m_funcType;		// Maybe not needed
+	double m_studySpeed = 0.5;
+	double m_studyMoment = 0.0;
 
 	// methods
 	void AddNeuronLayer(int size, int funcType, int neuronType, bool AddBias);
 	void AddConnLayer(NeuronLayer *from, NeuronLayer *to, vector<double> weights);
 	void AddConnLayer(NeuronLayer *from, NeuronLayer *to);
+	void BackPropagation(vector<double> *errors);
+
+	void Study(vector<double> *inVals, vector<double> *targetVals, unsigned long iterations, int errCalc = MIN_SQ_METHOD);
 };
 
-// Neural net constructor stays the same!!
 Net::Net(NetStructure *netStr) {
+	m_studyMoment = netStr->gradientMoment;
+	m_studySpeed = netStr->studySpeed;
+	
 	// Add neuron layers
 	AddNeuronLayer(netStr->neurons[0], netStr->activationFunction, INPUT_NEURON, netStr->addBias);
 	for (int l = 1; l < netStr->neurons.size() - 1; l++)
@@ -67,8 +72,6 @@ Net::Net(NetStructure *netStr) {
 	AddNeuronLayer(netStr->neurons.back(), netStr->activationFunction, OUTPUT_NEURON, netStr->addBias);
 
 
-
-	// Pointer is ruined after iteration of this cycle
 	// Add connecions
 	for (int i = 0; i < this->neurons.size() - 1; i++) {
 		if (i < netStr->conWeights.size()) {
@@ -112,9 +115,13 @@ void Net::AddConnLayer(NeuronLayer *from, NeuronLayer *to) {
 	connections.push_back(ConnectionLayer());
 	for (int f = 0; f < from->size(); f++) {
 		for (int t = 0; t < to->size(); t++) {
-			if (to->at(t)->isBiasNeuron()) {
+			if (!to->at(t)->isBiasNeuron()) {
 				connections.back().push_back(Connection(from->at(f), to->at(t)));
 			}
+
+			// Add pointers to the study parameters
+			connections.back().back().m_studyMomentPtr = &m_studyMoment;
+			connections.back().back().m_studySpeedPtr = &m_studySpeed;
 		}
 	}
 }
@@ -134,6 +141,9 @@ void Net::AddNeuronLayer(int size, int funcType, int neuronType, bool AddBias = 
 		for (int n = 0; n < size; n++)
 			neurons.back().push_back(new OutputNeuron(funcType));
 	}
+	else {
+		cout << "the type of neuron: " << neuronType << " was not defined\n";
+	}
 
 	if (AddBias) {
 		neurons.back().push_back(new BiasNeuron(funcType));
@@ -150,6 +160,18 @@ bool Net::TakeInput(vector<double> *inVals) {
 			neurons[0][i]->SetInVal(inVals->at(i));
 		}
 		return true;
+	}
+}
+
+bool Net::TakeInputFile(string *fName) {
+	vector<double> inVals = ReadFileToDoubleArray(*fName);
+	
+	if (inVals.size() != neurons[0].size()) {
+		cout << "Input file \"" << *fName << "\" has incorrect data format\n";
+		return false;
+	}
+	else {
+		return TakeInput(&inVals);
 	}
 }
 
@@ -175,7 +197,7 @@ void Net::BackPropagation(vector<double> *errors)
 			neurons.back()[i]->CalculateDelta();
 		}
 		
-		int nLayer = neurons.size() - 2;	// Stating from first hidden layer after output layer
+		int nLayer = neurons.size() - 2;
 
 		// Back propagation itself
 		for (int i = connections.size() - 1; i >= 0; i--) {
@@ -224,7 +246,7 @@ void Net::ClearNeurons() {
 	}
 }
 
-void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned long iterations, int errCalc) {
+void Net::Train(vector<vector<double>*> *inVects, vector<vector<double>*> *targetVals, unsigned long iterations, int errCalc) {
 	LogFile logFile("E:\\NetStudyLog.txt");
 
 	double(*ErrorCalculator)(vector<double> result, vector<double> target) = NULL;
@@ -234,6 +256,47 @@ void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned lon
 		ErrorCalculator = RootMSE;
 	else if (errCalc == ATAN_METHOD)
 		ErrorCalculator = Arctan;
+
+	for (int i = 0; i < inVects->size(); i++) {
+		if (inVects->at(i)->size() != neurons[0].size()) {
+			cout << "input at " << i << " has wrong size\n";
+			return;
+		}
+	}
+
+	for (int i = 0; i < targetVals->size(); i++) {
+		if (targetVals->at(i)->size() != neurons.back().size()) {
+			cout << "target vals size != neurons back size\n";
+			return;
+		}
+	}
+
+	cout << "Ready to study\n";
+	
+	int inputTurn = 0;
+	for (int i = 0; i < iterations; i++) {
+		if (inputTurn >= inVects->size())
+			inputTurn = 0;
+
+		cout << "iteration = " << i;
+		Study(inVects->at(inputTurn), targetVals->at(inputTurn), 1, errCalc);
+
+		inputTurn++;
+	}
+}
+
+void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned long iterations, int errCalc) {
+	LogFile logFile("E:\\NetStudyLog.txt");
+	
+	double(*ErrorCalculator)(vector<double> result, vector<double> target) = NULL;
+	if (errCalc == MIN_SQ_METHOD)
+		ErrorCalculator = MSE;
+	else if (errCalc == ROOT_MIN_SQ)
+		ErrorCalculator = RootMSE;
+	else if (errCalc == ATAN_METHOD)
+		ErrorCalculator = Arctan;
+	
+	//double(*ErrorCalculator)(vector<double> result, vector<double> target) = MSE;
 
 	if (inVals->size() != neurons[0].size() || targetVals->size() != neurons.back().size()) {
 		cout << "target vals size or input vals size incorrect\n";
@@ -247,12 +310,11 @@ void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned lon
 			vector<double> *outVals = this->GetOutVals();
 			double resErr = ErrorCalculator(*outVals, *targetVals);
 
-			logFile.ToLog(std::to_string(i) + " " + std::to_string(resErr));
+			// Debugging output
+			cout << "   Error = " << resErr << "\n\n";
+			// Delete later
 
-			if (i == 0)
-				cout << "Initial error = " << resErr << "\n";
-			else if (i == iterations - 1)
-				cout << "Last error    = " << resErr << "\n\n";
+			logFile.ToLog(std::to_string(i) + " " + std::to_string(resErr));
 
 			// Take errors and propagate back
 			vector<double> *errors = new vector<double>;
@@ -260,7 +322,8 @@ void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned lon
 				errors->push_back(targetVals->at(e) - outVals->at(e));
 			}
 
-			this->BackPropagation(errors);
+			BackPropagation(errors);
+			
 			this->ClearNeurons();
 
 			errors->clear();
@@ -269,4 +332,17 @@ void Net::Study(vector<double> *inVals, vector<double> *targetVals, unsigned lon
 			delete outVals;
 		}
 	}
+}
+
+// Debugging
+void Net::SaveStateToFile(string fName) {
+	ofstream oFile(fName, ofstream::out);
+
+	for (int l = 0; l < connections.size(); l++) {
+		for (int con = 0; con < connections[l].size(); con++) {
+			oFile << l << " " << con << " " << connections[l][con].m_weight << "\n";
+		}
+	}
+
+	oFile.close();
 }
