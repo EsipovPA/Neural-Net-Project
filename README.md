@@ -17,3 +17,9 @@ PS
 
 Also, have to point out, that I use Visual studio SE 17.
 If one sees this code years after upload, keep that in mind))
+
+master branch - Basic neural net. All the functionality is develope, but the net structure is rather simple/
+
+Perceptron branch - Simple perceptron taught to recognize 10 different characters of size 15
+
+Working on teaching perceptron to recognize different chineese characters
