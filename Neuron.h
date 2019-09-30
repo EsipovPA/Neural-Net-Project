@@ -17,27 +17,39 @@ public:
 			ActivationFunction = &HyperbolicTanActivationFunction;
 			ActivationFunctionDerivative = &HyperbolicFuncDeriv;
 		}
+		else if (funcType == THRESHOLD_FUNCTION) {
+			ActivationFunction = &ThresholdActivationFunction;
+			ActivationFunctionDerivative = &HyperbolicFuncDeriv;	// Testing now
+		}
+		else if (funcType == SENSOR_FUNCTION) {
+			ActivationFunction = &SensorActivationFunction;
+			ActivationFunctionDerivative = &HyperbolicFuncDeriv;	// Testing now
+		}
 		else {
 			cout << "Neuron constructor error: " << funcType << " is unknown function type!\n";
 		}
 	}
 
 	// Public neuron class methods
-	double GetOutVal() { 
+	virtual double GetOutVal() { 
 		m_outVal = ActivationFunction(m_inVal);
 		return m_outVal;
 	}
-	void CalculateOutVal() { m_outVal = ActivationFunction(m_inVal); }
+
+	// Have switched to virtual. Testing needed
+	virtual void CalculateOutVal() { m_outVal = ActivationFunction(m_inVal); }
+	
 	//double GetDelta() { return m_delta; }
 	double GetDelta() { return this->m_delta; }
 
-	void CalculateDelta() { 
+	void CalculateDelta() {
 		m_delta = m_deltaSum * ActivationFunctionDerivative(m_outVal);
 	}
 
 	void SetInVal(double inVal) { m_inVal = inVal; }
-	void AddToInVal(double inValAdd) { m_inVal += inValAdd; }
+	virtual void AddToInVal(double inValAdd) { m_inVal += inValAdd; }
 	void AddToDeltaSum(double inValAdd) { m_deltaSum += inValAdd; }
+	double GetInputValue() { return m_inVal; }
 
 	void AddConnectionPtr(Connection *conPtr) {
 		m_outConnections.push_back(conPtr);
