@@ -36,6 +36,13 @@ How to run and test the project:
 
 4. In the main part of the program, create an instance for NetStructure. This structure contains basic parameters for the net constructor method. For example:
 
+    //Создадим экземпляр конструктора
+    XmlConstructor testCon;
+        
+    //Поместим во внутреннее хранидище конструктора набор строковых данный
+    for (int i = 0; i < 10; i++){
+
+
   	NetStructure *sPtr = new NetStructure();
 	  sPtr->activationFunction = SIGMOID_FUNCTION;
 	  sPtr->neurons.push_back(15);
