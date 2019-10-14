@@ -34,20 +34,36 @@ How to run and test the project:
 
 3. #include "Net.h"
 
-4. In the main part of the program, create an instance for NetStructure. This structure contains basic parameters for the net constructor method. For example:
+4. In the main part of the program, create an instance for NetStructure. This structure contains basic parameters for the net constructor. For example:
 
-    //Создадим экземпляр конструктора
-    XmlConstructor testCon;
-        
-    //Поместим во внутреннее хранидище конструктора набор строковых данный
-    for (int i = 0; i < 10; i++){
+		// Create the structure instance
+		NetStructure *sPtr = new NetStructure();
+		
+		// Slect the type of the activation function
+		sPtr->activationFunction = SIGMOID_FUNCTION;
+		
+		// Three neurn layers
+		sPtr->neurons.push_back(15);
+		sPtr->neurons.push_back(15);
+		sPtr->neurons.push_back(10);
+		
+		// Study parameters
+		sPtr->studySpeed = 0.5;
+		sPtr->gradientMoment = 0.3;
+		sPtr->addBias = false;
 
+5. Create The Net:
 
-  	NetStructure *sPtr = new NetStructure();
-	  sPtr->activationFunction = SIGMOID_FUNCTION;
-	  sPtr->neurons.push_back(15);
-	  sPtr->neurons.push_back(15);
-	  sPtr->neurons.push_back(10);
-	  sPtr->studySpeed = 0.5;
-	  sPtr->gradientMoment = 0.3;
-	  sPtr->addBias = false;
+		Net *nPtr = new Net(sPtr);
+
+6. Give the net some training data and teach it.
+
+		TraningSet trSet = GetLinearTraningSet(&files, 10);
+		nPtr->Train(trSet.first, trSet.second, 10000);
+		
+The training set is as follows:
+
+		#define TraningSet pair<vector<vector<double>*>*, vector<vector<double>*>*>
+
+7. Test the net.
+
