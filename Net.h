@@ -3,46 +3,15 @@
 #include "LogFile.h"
 #include "ImageFileReader.h"
 #include "Preprocessing.h"
+#include "NetStructures.h"
 
 #include <string>
-
-//*********** Net structure ***********
-struct NetStructure {
-	NetStructure() {};
-	NetStructure(vector<unsigned> neurons_, vector<vector<double>> conWeights_, double sSpeed, double sGrad, bool needBias, int activationFunction_);
-
-	bool addBias = false;
-	int activationFunction = LINEAR_FUNCTION;
-
-	vector<unsigned> neurons;
-	vector<vector<double>> conWeights;
-
-	double studySpeed = 1.0;
-	double gradientMoment = 0.0;
-
-	void GetWeightsFromFile(string fName = "NNS_State.txt");
-};
-
-NetStructure::NetStructure(vector<unsigned> neurons_, vector<vector<double>> conWeights_, double sSpeed, double sGrad, bool needBias, int activationFunction_) {
-	this->activationFunction = activationFunction_;
-	this->addBias = needBias;
-	this->conWeights = conWeights_;
-	this->gradientMoment = sGrad;
-	this->neurons = neurons_;
-	this->studySpeed = sSpeed;
-}
-
-// Not developed yet
-void NetStructure::GetWeightsFromFile(string fName) {
-
-	cout << "Testing NetStructure::GetWeightsFromFile\n";
-
-}
 
 //*********** Net Class ***********
 class Net {
 public:
 	Net(NetStructure *netStr);
+	Net(ConvStructure *netStr);
 
 	bool TakeInput(vector<double> *inVals);
 	bool TakeInputFile(string *fName);
@@ -107,6 +76,10 @@ Net::Net(NetStructure *netStr) {
 			connections[i][j].m_from->AddConnectionPtr(&connections[i][j]);
 		}
 	}
+}
+
+Net::Net(ConvStructure *netStr) {
+
 }
 
 void Net::AddConnLayer(NeuronLayer *from, NeuronLayer *to, vector<double> weights) {
@@ -513,7 +486,6 @@ void Net::SaveStateToFile(string fName) {
 	oFile.close();
 }
 
-
 // Evolution study funcions
 
 // Mutate the weights in the parent neural network
@@ -547,16 +519,22 @@ void SortChildren(vector<Net*> children /*training data here*/ /*number of survi
 
 // The general Evolution study method
 Net *EvolutionStudy(NetStructure *strPtr, int generations, int parentsCount /*training data here*/) {
-	vector<Net*> population = GenerateParents(strPtr, parentsCount);
+	cout << "Evolution study test\n";
 
+
+
+	vector<Net*> population = GenerateParents(strPtr, parentsCount);
+/*
 	for (int g = 0; g < generations; g++) {
 		population = Mutate(population);
 		SortChildren(population);
 	}
 
 	// Need to test this part
+*/
 	Net *bestChild = population[0];
 	population.clear();
+
 
 	return bestChild;
 }

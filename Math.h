@@ -10,7 +10,6 @@ class Connection;
 class Neuron;
 class Net;
 
-// Types of activation functions
 #define LINEAR_FUNCTION 1
 #define SIGMOID_FUNCTION 2
 #define HYPERBOLIC_TAN_FUNCTION 3
@@ -19,7 +18,6 @@ class Net;
 #define THRESHOLD_FUNCTION 5
 #define SENSOR_FUNCTION 7
 
-// Types of neurons
 #define HIDDEN_NEURON 8
 #define OUTPUT_NEURON 9
 #define BIAS_NEURON 10
@@ -28,12 +26,10 @@ class Net;
 #define ASSOCIATIVE_NEURON 13
 #define REACTING_NEURON 14
 
-// Error calculation methods
 #define MIN_SQ_METHOD 15
 #define ROOT_MIN_SQ 16
 #define ATAN_METHOD 17
 
-// Types of connections for a perceptron net
 #define S_A_CONNECTION 18
 #define A_R_CONNECTIN 19
 
