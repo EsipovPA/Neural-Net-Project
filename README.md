@@ -4,12 +4,12 @@ Usefull papers on Neural networks
 1. https://habr.com/ru/post/312450/
 2. https://habr.com/ru/post/313216/
 
-# My papers on LinkedIn. Kind of personnal blog about the journy inside Machene learning
+## My papers on LinkedIn. Kind of personnal blog about the journy inside Machene learning
 
 1. https://www.linkedin.com/pulse/my-first-neural-network-solving-xor-problem-teacher-paul-esipov/
 2. https://www.linkedin.com/pulse/traning-perceptron-read-symbols-from-images-neural-networks-esipov/
 
-# The description of the classes in this project is given in the first paper.
+## The description of the classes in this project is given in the first paper.
 
 What one may find in this project:
 1. Net.h - the header file containing the description of the neural network class itself. In this file one may find the Net class and the methods of this class. Also there are the NetStructure structure (sounds kinda funny), that is used by the Net class constructor as an input. This is the main header file, required to get the net up and running. Right now I'm working on adding the evolution training algorithm to this file. To use this header in your project you are going to need to add the following list of files: Neuron.h, Connection.h, LogFile.h, ImageFileReader.h, ImageFileReader.cpp, Preprocessing.h, Math.h, Math.cpp
@@ -26,7 +26,7 @@ What one may find in this project:
 
 7. ImageFileReader.h and ImageFileReader.cpp - these files are also in work in progress state. I'm aiming to develop and put there some methods for image files reading and converting into arrays of input data for the net. With these methods, the net will be able to read, recognize and do other funny stuff with the images and videos. Mainly, it is the basis for the interface to the OpenCV library.
 
-# How to run and test the project:
+## How to run and test the project:
 
 1. Create the new project in the VisualStudio. This project may be built with other IDEs, but is not tested this way.
 
